@@ -1,14 +1,25 @@
-const http = require("http");
-const json = require("./Module/datos");
+const express = require("express");
+const app = express();
+const port = 8080;
+const db = require("./Module/datos.json");
+const fs = require("fs");
 
-http
-  .createServer((req, res) => {
-    const url = new URL(req.url, `http:/localhost/3000`);
-    console.log(url);
-    res.writeHead(200, "Content-Type", "application/json");
-    res.end(JSON.stringify(json));
-  })
-  .listen(3000);
+app.get("/", (req, res) => {
+  res.json(db);
+  res.end();
+});
 
-console.log("Escuchando en el puerto", 3000);
+app.post("/", express.json(), (req, res) => {
+  const body = req.body;
+  db.push(body);
+  fs.writeFileSync("./Module/datos.json", JSON.stringify(db), function (err) {
+    if (err) throw err;
+    console.log("actualizade");
+  });
+  res.send("received");
+  res.end();
+});
 
+app.listen(port, () => {
+  console.log(`Servidor activo en http://localhost:${port}`);
+});
